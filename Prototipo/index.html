@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoRoute Logistic AI - Prototipo Funcional</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-route"></i> EcoRoute AI
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</li>
+            <li class="menu-item" onclick="switchTab('despachos')"><i class="fa-solid fa-truck-ramp-box"></i> Gestión de Despachos</li>
+            <li class="menu-item" onclick="switchTab('iot')"><i class="fa-solid fa-temperature-quarter"></i> Sensores IoT</li>
+            <li class="menu-item" onclick="switchTab('ia')"><i class="fa-solid fa-brain"></i> IA Predictiva de Rutas</li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <span style="color: #64748b; font-weight: 500;">Transportes Sur-Austral</span>
+            </div>
+            <div class="user-profile">
+                <i class="fa-solid fa-circle-user fa-lg" style="color: var(--accent);"></i>
+                <span><strong>Operador:</strong> Central Santiago</span>
+            </div>
+        </header>
+
+        <div id="global-alert-banner" class="alert-banner">
+            <div>
+                <i class="fa-solid fa-triangle-exclamation"></i> 
+                <strong>ALERTA CRÍTICA IoT:</strong> Camión <span id="alert-truck-id">TSA-042</span> superó los -15°C. Peligro de merma normativa SERNAPESCA.
+            </div>
+            <button class="btn btn-danger" onclick="mitigarAlerta()">Estabilizar Frío (Remoto)</button>
+        </div>
+
+        <section id="tab-dashboard" class="content-body active-tab">
+            <h2 class="page-title">Panel de Control General</h2>
+            
+            <div class="grid-kpi">
+                <div class="card-kpi">
+                    <div>
+                        <div class="label">Flota Activa</div>
+                        <div class="value">150 / 150</div>
+                    </div>
+                    <i class="fa-solid fa-truck"></i>
+                </div>
+                <div class="card-kpi">
+                    <div>
+                        <div class="label">En Tránsito Hoy</div>
+                        <div class="value" id="kpi-transit">3</div>
+                    </div>
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div class="card-kpi">
+                    <div>
+                        <div class="label">Tasa de Retraso</div>
+                        <div class="value" style="color: var(--success);">11.2%</div>
+                    </div>
+                    <i class="fa-solid fa-clock-history"></i>
+                </div>
+                <div class="card-kpi">
+                    <div>
+                        <div class="label">Eficiencia Combustible</div>
+                        <div class="value">+15.4%</div>
+                    </div>
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+            </div>
+
+            <div class="dashboard-layout">
+                <div class="card-panel">
+                    <h3><i class="fa-solid fa-map-location-dot"></i> Monitoreo Rápido de Rutas (Santiago - Punta Arenas)</h3>
+                    <table id="table-dashboard-summary">
+                        <thead>
+                            <tr>
+                                <th>Patente</th>
+                                <th>Ruta</th>
+                                <th>Temp. IoT</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+
+                <div class="card-panel">
+                    <h3><i class="fa-solid fa-bolt"></i> Acciones Rápidas</h3>
+                    <p style="font-size: 0.85rem; margin-bottom: 1rem; color: #64748b;">Simula eventos críticos de la operación real para la defensa del proyecto.</p>
+                    <button class="btn btn-danger" style="width: 100%; margin-bottom: 0.5rem;" onclick="triggerFallaIotSimulada()">
+                        <i class="fa-solid fa-temperature-high"></i> Forzar Falla Sistema de Frío
+                    </button>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="switchTab('ia')">
+                        <i class="fa-solid fa-cloud-snow"></i> Revisar Alertas Climáticas IA
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-despachos" class="content-body">
+            <h2 class="page-title">Gestión Logística y Despachos</h2>
+            
+            <div class="dashboard-layout">
+                <div class="card-panel">
+                    <h3><i class="fa-solid fa-list-check"></i> Registro de Despachos Activos</h3>
+                    <table id="table-despachos-full">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Patente</th>
+                                <th>Destino</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+
+                <div class="card-panel">
+                    <h3><i class="fa-solid fa-square-plus"></i> Crear Nuevo Despacho</h3>
+                    <form id="form-despacho" onsubmit="crearDespacho(event)">
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <input type="text" id="form-cliente" class="form-control" placeholder="Ej. Pesquera Austral" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Patente Camión</label>
+                            <input type="text" id="form-patente" class="form-control" placeholder="Ej. TSA-990" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Ciudad de Destino</label>
+                            <select id="form-destino" class="form-control">
+                                <option value="Punta Arenas">Punta Arenas</option>
+                                <option value="Coyhaique">Coyhaique</option>
+                                <option value="Puerto Montt">Puerto Montt</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="width: 100%;">
+                            <i class="fa-solid fa-floppy-disk"></i> Registrar e Iniciar Ruta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-iot" class="content-body">
+            <h2 class="page-title">Módulo de Telemetría IoT (Cadena de Frío)</h2>
+            <div class="card-panel">
+                <h3><i class="fa-solid fa-snowflake"></i> Monitoreo de Camiones Frigoríficos (Normativa Minsal)</h3>
+                <p style="font-size: 0.9rem; margin-bottom: 1rem; color: #64748b;">
+                    Sensores integrados transmiten cada 10 segundos. Límite crítico exigido: <strong>-18°C</strong>.
+                </p>
+                <table id="table-iot-telemetry">
+                    <thead>
+                        <tr>
+                            <th>Patente</th>
+                            <th>Última Lectura</th>
+                            <th>Estado Sensor</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="tab-ia" class="content-body">
+            <h2 class="page-title">Algoritmo de Optimización Predictiva de Rutas</h2>
+            <div class="card-panel">
+                <h3><i class="fa-solid fa-robot"></i> Análisis en Tiempo Real (Machine Learning + APIs de Clima)</h3>
+                <div style="background: #e0f2fe; color: #0369a1; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-info"></i> <strong>Predicción Activa:</strong> Evaluando condiciones climáticas en los pasos fronterizos y rutas australes de la Patagonia para mitigar el 25% de retrasos históricos.
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-weight: 600; font-size: 0.9rem; display:block; margin-bottom: 5px;">Simular Alerta Climática en la Ruta:</label>
+                    <button class="btn btn-warning" onclick="activarContingenciaClimatica('Nieve Extrema')">
+                        <i class="fa-solid fa-snowflake"></i> Simular Nieve en Paso Monte Aymond
+                    </button>
+                    <button class="btn btn-primary" onclick="activarContingenciaClimatica('Normalizar')">
+                        <i class="fa-solid fa-sun"></i> Restablecer Clima Óptimo
+                    </button>
+                </div>
+
+                <h4>Terminal de Decisiones de la IA:</h4>
+                <div class="console-box" id="ia-console">
+                    [INFO] Iniciando módulo EcoRoute AI...<br>
+                    [INFO] Conexión establecida con sensores GPS de la flota.<br>
+                    [IA] Analizando rutas tradicionales... Estado: ÓPTIMO (Sin retrasos reportados).
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
